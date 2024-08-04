@@ -3,7 +3,10 @@ from tkinter import ttk
 from googletrans import Translator, LANGUAGES
 import os
 import numpy as np
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageEnhance
+from pygame import *
+import time
+
 
 
 #create GUI object (Tk)
@@ -19,26 +22,54 @@ Label(root, text="Language Translator", font="Arial 20 bold").pack()
  
 Label(root, text="Enter Text", font='arial 13 bold', bg='white smoke').place(x=165, y=90)
 
+mixer.init() #Mixer is how you can use and play sounds
+v = mixer.Sound('Vine Boom.mp3') # Puts the sound in the application
 
-# IN PROGRESS
-"""
+def fade_in(image_label, img, steps=50, delay=50):
+    for i in range(steps + 1):
+        LightUp = i / float(steps)
+        ImgWLight = ImageEnhance.Brightness(img).enhance(LightUp)
+        UpdatedImg = ImageTk.PhotoImage(ImgWLight)
+        image_label.config(image=UpdatedImg)
+        image_label.image = UpdatedImg
+        root.update()
+        time.sleep(delay / 2000)
 
-img = ImageTk.PhotoImage(Image.open("coiny.png"))
 
-img = Image.open("coiny.png")
+def fade_out(image_label, img, steps=50, delay=50):
+    for i in range(steps + 1):
+        BlackOut = (steps - i) / float(steps)
+        ImgDark = ImageEnhance.Brightness(img).enhance(BlackOut)
+        UpdatedImg = ImageTk.PhotoImage(ImgDark)
+        image_label.config(image=UpdatedImg)
+        image_label.image = UpdatedImg
+        root.update()
+        time.sleep(delay / 2000)
 
-nimg = img.resize((100,100))
 
-nimg.save('coiny.png')
+
+
+img = Image.open('L.jpg')
+
+nimg = img.resize((130,130), Image.LANCZOS)
+
+nimg.save('L2.jpg')
 
 img2 = ImageTk.PhotoImage(nimg)
 
-numpy_array = np.array(nimg)
+
+image_label = Label(root, image=img2)
 
 
-Label(root, image=img2).place(x=500, y = 130)
 
-"""
+
+
+
+
+
+
+
+
 
 Input_text = Entry(root, width=60) # Entry() shows you entering the text in a box
 Input_text.place(x=30, y=130)
@@ -61,6 +92,15 @@ def Translate(): # This function shows to be able to reanslate your text into an
         
     except Exception as e:
         print(f"Translation error: {e}") # If no language is detected, then throw an error.
+        Output_text.delete(1.0, END)
+        v.play() #Plays the sound from mixer
+        image_label.place(x = 430, y = 40)
+        fade_in(image_label, nimg)
+        fade_out(image_label, nimg)
+        image_label.config(image = '')
+        image_label.place(x = -700, y = 200)
+        
+
 
 trans_btn = Button(root, text='Translate', font='arial 12 bold', pady=5, command=Translate, bg='orange', activebackground='green')
 trans_btn.place(x=445, y=180) # Adds a clickable button for translation.
